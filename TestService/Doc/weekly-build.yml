@@ -1,0 +1,78 @@
+# define a workflow scheduled over the weekend at Sunday 10:30 am
+# use the schedule event to trigger the workflow
+# build the .NET Core application
+# build using Windows and ubuntu with the help of matrix strategy
+# build using .NET Core latest version
+
+name: Weekly Build
+on:
+  schedule:
+    - cron: '30 10 * * 0'
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        dotnet: ['5.0.x']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+      - name: Build with dotnet
+        run: dotnet build -- configuration Release
+      
+      # define a step to run the unit tests
+      - name: Run unit tests
+        run: dotnet test -- configuration Release -- no-build
+      
+      # define a step to run Selenium test suite
+      - name: Run Selenium tests
+        run: dotnet test -- configuration Release -- no-build -- filter Category=Selenium
+      
+      # add a step to run the integration tests
+      - name: Run integration tests
+        run: dotnet test -- configuration Release -- no-build -- filter Category=Integration
+
+
+# Definir un Workflow programado durante el fin de semana a las 10:30 a.m. del domingo
+# Usar el evento de programación para activar el Workflow
+# Construir la aplicación .NET Core
+# Construir utilizando Windows y Ubuntu con la ayuda de la estrategia de matriz
+# Construir utilizando la última versión de .NET Core
+
+name: Weekly Build
+on:
+  schedule:
+    - cron: '30 10 * * 0'
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        dotnet: ['5.0.x']
+    steps:
+      - uses: actions/checkout@v2
+      # Configurar .NET Core
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+      # Construir con dotnet
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+      
+      # Definir un paso para ejecutar las pruebas unitarias
+      - name: Run unit tests
+        run: dotnet test --configuration Release --no-build
+      
+      # Definir un paso para ejecutar la suite de pruebas Selenium
+      - name: Run Selenium tests
+        run: dotnet test --configuration Release --no-build --filter Category=Selenium
+      
+      # Añadir un paso para ejecutar las pruebas de integración
+      - name: Run integration tests
+        run: dotnet test --configuration Release --no-build --filter Category=Integration

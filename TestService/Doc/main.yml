@@ -1,3 +1,6 @@
+# Nombre del flujo de trabajo: Publicar 🚀
+# Activar el flujo de trabajo manualmente o en push a la rama principal
+
 name: Publish 🚀
 
 on:
@@ -6,31 +9,47 @@ on:
     branches:
     - main
 
+# Definir variables de entorno para el nombre del servicio web de Azure y la ruta del paquete
+
 env:
   AZURE_WEBAPP_NAME: TestServiceGit
   AZURE_WEBAPP_PACKAGE_PATH: "./publish"
+
+# Definir trabajos, en este caso, un trabajo de publicación
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     
+    # Pasos para el trabajo de publicación
+
     steps:
       - uses: actions/checkout@v3
       
+      # Configurar .NET SDK, versión 7.0.x
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0.x'
           
+      # Restaurar dependencias del proyecto
+
       - name: Restore
         run: dotnet restore ./TestService.sln
         
+      # Construir el proyecto en modo Release sin restaurar dependencias
+
       - name: Build
         run: dotnet build ./TestService.sln --configuration Release --no-restore
         
+      # Publicar el proyecto en la ruta definida sin construir nuevamente
+
       - name: Publish
         run: dotnet publish ./TestService.sln --configuration Release --no-build --output '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
         
+      # Desplegar el paquete en el servicio web de Azure
+
       - name: Deployment
         uses: azure/webapps-deploy@v2
         with:

@@ -1,0 +1,85 @@
+# define a workflow for creating GitHub Issue based on push comment
+# use the push event to trigger the workflow
+
+name: Create GitHub Issue
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - README.md
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue
+        uses: peter-evans/create-issue-from-file@v3
+        id: create-issue
+        with:
+          title: New comment on README.md
+          content-filepath: ${{ github.event.head_commit.message }}
+          labels: comment
+          assignees: peter-evans
+
+      # add a step to send a notification email
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: New comment on README.md
+          body: ${{ github.event.head_commit.message }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          # use TLS
+          secure: true
+
+
+
+# Definir un Workflow para crear un Issue en GitHub basado en un comentario de push
+# Usar el evento de push para activar el Workflow
+
+name: Create GitHub Issue
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - README.md
+
+# Job para crear un Issue en GitHub
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      # Crear un Issue en GitHub basado en el archivo especificado
+      - name: Create Issue
+        uses: peter-evans/create-issue-from-file@v3
+        id: create-issue
+        with:
+          title: New comment on README.md
+          content-filepath: ${{ github.event.head_commit.message }}
+          labels: comment
+          assignees: peter-evans
+
+      # Añadir un paso para enviar un correo electrónico de notificación usando office365
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.office365.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: New comment on README.md
+          body: ${{ github.event.head_commit.message }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          # use TLS
+          secure: true
+      

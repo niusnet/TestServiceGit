@@ -1,0 +1,150 @@
+# define GitHub Workflow for deployment to Azure App service
+# USe the push and pull request events to trigger the workflow
+# First job for build the contaier image and push to GitHub Container Registry
+# Second job for deploy the container image to Azure App service in the staging environment
+# Third job for deploy the container image to Azure App service in the production environment
+# Use the actions OIDC for authentication to Azure
+
+
+name: Azure App Service - CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/azure-app-service:${{ github.sha }}
+
+  deploy-staging:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "azure-app-service-staging"
+          images: "ghcr.io/${{ github.repository_owner }}/azure-app-service:${{ github.sha }}"
+          slot-name: "staging"
+
+  deploy-production:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "azure-app-service-production"
+          images: "ghcr.io/${{ github.repository_owner }}/azure-app-service:${{ github.sha }}"
+          slot-name: "production"
+
+
+
+# Definir un Workflow en GitHub para el despliegue en el servicio de aplicaciones de Azure
+# Usar los eventos de push y pull request para activar el Workflow
+# Primer job para build la imagen del contenedor y subirla al Registro de Contenedores de GitHub
+# Segundo job para deploy la imagen del contenedor en el servicio de aplicaciones de Azure en el entorno de staging
+# Tercer job para deploy la imagen del contenedor en el servicio de aplicaciones de Azure en el entorno de producción
+# Usar las acciones OIDC para la autenticación en Azure
+
+name: Azure App Service - CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Job para construir y subir la imagen del contenedor
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Iniciar sesión en el Registro de Contenedores de GitHub
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Construir y subir la imagen Docker
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/azure-app-service:${{ github.sha }}
+
+# Job para deploy en el entorno de staging
+
+  deploy-staging:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      # Iniciar sesión mediante Azure CLI
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      # deploy en la aplicación web de Azure
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "azure-app-service-staging"
+          images: "ghcr.io/${{ github.repository_owner }}/azure-app-service:${{ github.sha }}"
+          slot-name: "staging"
+
+# Job para deploy en el entorno de producción
+
+  deploy-production:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      # Iniciar sesión mediante Azure CLI
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      # deploy en la aplicación web de Azure
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "azure-app-service-production"
+          images: "ghcr.io/${{ github.repository_owner }}/azure-app-service:${{ github.sha }}"
+          slot-name: "production"
