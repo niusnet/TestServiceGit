@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "CurrentTimeService": {
+    "TestService": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
