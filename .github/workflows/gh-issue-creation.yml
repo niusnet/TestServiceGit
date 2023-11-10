@@ -4,6 +4,7 @@
 name: Crear Issue en Github
 
 on:
+  workflow_dispatch:
   push:
     branches: 
       - main
