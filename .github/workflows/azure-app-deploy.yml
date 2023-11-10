@@ -1,0 +1,107 @@
+# define un workflow en github para el deploy de un app sevices de Azure
+# usando los eventos de push y pull request para correr el workflow
+# primer job para el build de la imagen de docker y subirla a github container registry
+# segundo job para el deploy de la imagen en un app service de azure en el entorno de staging
+# tercer job para el deploy de la imagen en un app service de azure en el entorno de production
+# utilizar el OIDC para la autenticacion con azure
+
+
+name: Azure App Service Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+env: 
+    DOCKER_IMAGE_NAME: testservicesimg
+    IMAGE_REGISTRY_URL: ghcr.io
+    STAGING_APP_NAME: testservices-staging
+    STAGING_SLOT_NAME: testservices-qa
+    RESOURCE_GROUP: JDLab
+
+jobs:
+    build:
+    # build de la imagen de docker y subirla a github container registry
+      build-and-deploy:
+          runs-on: ubuntu-latest
+          needs: build
+          steps:
+          - name: Checkout
+              uses: actions/checkout@v3
+  
+          - name: Download built artifact
+              uses: actions/download-artifact@v3
+              with:
+                  name: webpack artifacts
+                  path: public
+  
+          - name: Log in to GHCR
+              uses: docker/login-action@v2
+              with:
+                  registry: ${{ env.IMAGE_REGISTRY_URL }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.CR_PAT }}
+  
+          - name: Extract metadata (tags, labels) for Docker
+              id: meta
+              uses: docker/metadata-action@v4
+              with:
+                  images: ${{env.IMAGE_REGISTRY_URL}}/${{ github.repository }}/${{env.DOCKER_IMAGE_NAME}}
+                  tags: |
+                      type=sha,format=long,prefix=
+  
+          - name: Build and push Docker image
+              uses: docker/build-push-action@v3
+              with:
+                  context: .
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+  
+      # deploy de la imagen en un app service de azure en el entorno de staging
+      deploy-staging:
+          runs-on: ubuntu-latest
+          needs: build-and-deploy
+          steps:
+          - name: Checkout
+              uses: actions/checkout@v3
+  
+          - name: Log in to Azure
+              uses: azure/login@v1
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+  
+          - name: Set up Azure WebApp
+              uses: azure/webapps-deploy@v2
+              with:
+                  app-name: ${{ env.STAGING_APP_NAME }}
+                  images: ${{ env.IMAGE_REGISTRY_URL }}/${{ github.repository }}/${{env.DOCKER_IMAGE_NAME}}:${{ github.sha }}
+                  slot-name: ${{ env.STAGING_SLOT_NAME }}
+                  resource-group: ${{ env.RESOURCE_GROUP }}
+  
+      # deploy de la imagen en un app service de azure en el entorno de production
+      deploy-production:
+          runs-on: ubuntu-latest
+          needs: build-and-deploy
+          steps:
+          - name: Checkout
+              uses: actions/checkout@v3
+  
+          - name: Log in to Azure
+              uses: azure/login@v1
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+  
+          - name: Set up Azure WebApp
+              uses: azure/webapps-deploy@v2
+              with:
+                  app-name: ${{ env.PRODUCTION_APP_NAME }}
+                  images: ${{ env.IMAGE_REGISTRY_URL }}/${{ github.repository }}/${{env.DOCKER_IMAGE_NAME}}:${{ github.sha }}
+                  slot-name: ${{ env.PRODUCTION_SLOT_NAME }}
+                  resource-group: ${{ env.RESOURCE_GROUP }}
+  
+  

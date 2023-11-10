@@ -1,0 +1,38 @@
+# define un workflow para crear un issue en github basado en un comentario de un push
+# usar el evento de push para ejecutar el workflow
+
+name: Crear Issue en Github
+
+on:
+  push:
+    branches: 
+      - main
+    paths:
+      - 'README.md'
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+# cree el job para crear el issue
+jobs:
+  create_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Crear Issue
+        uses: peter-evans/create-issue-from-file@v2
+        with:
+          title: 'Se actualizó el README.md'
+          content-filepath: ${{ github.event.head_commit.message }}
+          labels: 'bug, enhancement'
+
+  # añadir un paso para enviar un correo electrónico de notificación usando office365
+      - name: Enviar correo
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: smtp.office365.com
+          server_port: 587
+          username: ${{ secrets.EMAIL }}
+          password: ${{ secrets.PASSWORD }}
+          subject: 'Se actualizó el README.md'
+          body: ${{ github.event.head_commit.message }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          content_type: 'text/plain; charset=UTF-8'
