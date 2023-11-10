@@ -14,8 +14,7 @@ app.UseHttpsRedirection();
 
 app.MapGet("time/utc", () => Results.Ok(DateTime.UtcNow));
 
-
-var products = new[] { 
+var products = new[] {
     new Product(1, "Table", 100),
     new Product(2, "Chair", 200),
     new Product(3, "Desk", 300),
