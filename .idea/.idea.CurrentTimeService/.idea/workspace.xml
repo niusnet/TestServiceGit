@@ -12,20 +12,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2a5c68ed-4237-4b2a-a9c4-480d66ee425a" name="Changes" comment="Init">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.CurrentTimeService/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CurrentTimeService/Product.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CurrentTimeService/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CurrentTimeService/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CurrentTimeService/.idea/aws.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CurrentTimeService/.idea/dictionaries" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CurrentTimeService/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CurrentTimeService/.idea/indexLayout.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CurrentTimeService.sln" beforeDir="false" afterPath="$PROJECT_DIR$/TestService.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CurrentTimeService/CurrentTimeService.csproj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CurrentTimeService/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CurrentTimeService/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CurrentTimeService/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/CurrentTimeService/Properties/launchSettings.json" afterDir="false" />
-    </list>
+    <list default="true" id="2a5c68ed-4237-4b2a-a9c4-480d66ee425a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -133,7 +120,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1699586410613</updated>
-      <workItem from="1699586410614" duration="772000" />
+      <workItem from="1699586410614" duration="1008000" />
     </task>
     <task id="LOCAL-00001" summary="Init">
       <option name="closed" value="true" />
